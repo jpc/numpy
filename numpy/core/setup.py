@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+target_platform = "linux"
 
 import os
 import sys
@@ -70,7 +71,7 @@ class CallOnceOnly(object):
 
 def pythonlib_dir():
     """return path where libpython* is."""
-    if sys.platform == 'win32':
+    if target_platform == 'win32':
         return os.path.join(sys.prefix, "libs")
     else:
         return get_config_var('LIBDIR')
@@ -78,7 +79,7 @@ def pythonlib_dir():
 def is_npy_no_signal():
     """Return True if the NPY_NO_SIGNAL symbol must be defined in configuration
     header."""
-    return sys.platform == 'win32'
+    return target_platform == 'win32'
 
 def is_npy_no_smp():
     """Return True if the NPY_NO_SMP symbol must be defined in public
@@ -96,8 +97,8 @@ def win32_checks(deflist):
     a = get_build_architecture()
 
     # Distutils hack on AMD64 on windows
-    print('BUILD_ARCHITECTURE: %r, os.name=%r, sys.platform=%r' %
-          (a, os.name, sys.platform))
+    print('BUILD_ARCHITECTURE: %r, os.name=%r, target_platform=%r' %
+          (a, os.name, target_platform))
     if a == 'AMD64':
         deflist.append('DISTUTILS_USE_SDK')
 
@@ -442,7 +443,7 @@ def configuration(parent_package='',top_path=None):
                 moredefs.append('__NPY_PRIVATE_NO_SIGNAL')
 
             # Windows checks
-            if sys.platform == 'win32' or os.name == 'nt':
+            if target_platform == 'win32' or os.name == 'nt':
                 win32_checks(moredefs)
 
             # C99 restrict keyword
@@ -618,7 +619,7 @@ def configuration(parent_package='',top_path=None):
 
     config.add_define_macros([("NPY_INTERNAL_BUILD", "1")]) # this macro indicates that Numpy build is in process
     config.add_define_macros([("HAVE_NPY_CONFIG_H", "1")])
-    if sys.platform[:3] == "aix":
+    if target_platform[:3] == "aix":
         config.add_define_macros([("_LARGE_FILES", None)])
     else:
         config.add_define_macros([("_FILE_OFFSET_BITS", "64")])

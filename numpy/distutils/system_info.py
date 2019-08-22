@@ -121,6 +121,7 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 
 """
 from __future__ import division, absolute_import, print_function
+target_platform = "linux"
 
 import sys
 import os
@@ -219,7 +220,7 @@ def libpaths(paths, bits):
     return out
 
 
-if sys.platform == 'win32':
+if target_platform == 'win32':
     default_lib_dirs = ['C:\\',
                         os.path.join(distutils.sysconfig.EXEC_PREFIX,
                                      'libs')]
@@ -807,15 +808,15 @@ class system_info(object):
         if c.compiler_type != 'msvc':
             # MSVC doesn't understand binutils
             static_exts.append('.a')
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             static_exts.append('.lib')  # .lib is used by MSVC and others
         if self.search_static_first:
             exts = static_exts + [so_ext]
         else:
             exts = [so_ext] + static_exts
-        if sys.platform == 'cygwin':
+        if target_platform == 'cygwin':
             exts.append('.dll.a')
-        if sys.platform == 'darwin':
+        if target_platform == 'darwin':
             exts.append('.dylib')
         return exts
 
@@ -854,7 +855,7 @@ class system_info(object):
     def _find_lib(self, lib_dir, lib, exts):
         assert is_string(lib_dir)
         # under windows first try without 'lib' prefix
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             lib_prefixes = ['', 'lib']
         else:
             lib_prefixes = ['lib']
@@ -1145,7 +1146,7 @@ class mkl_info(system_info):
                     define_macros=[('SCIPY_MKL_H', None),
                                    ('HAVE_CBLAS', None)],
                     include_dirs=incl_dirs)
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             pass  # win32 has no pthread library
         else:
             dict_append(info, libraries=['pthread'])
@@ -1164,7 +1165,7 @@ class atlas_info(system_info):
     section = 'atlas'
     dir_env_var = 'ATLAS'
     _lib_names = ['f77blas', 'cblas']
-    if sys.platform[:7] == 'freebsd':
+    if target_platform[:7] == 'freebsd':
         _lib_atlas = ['atlas_r']
         _lib_lapack = ['alapack_r']
     else:
@@ -1239,7 +1240,7 @@ class atlas_info(system_info):
         lapack_name = lapack['libraries'][0]
         lapack_lib = None
         lib_prefixes = ['lib']
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             lib_prefixes.append('')
         for e in self.library_extensions():
             for prefix in lib_prefixes:
@@ -2146,7 +2147,7 @@ class accelerate_info(system_info):
             libraries = self.get_libs('libraries', self._lib_names)
         libraries = [lib.strip().lower() for lib in libraries]
 
-        if (sys.platform == 'darwin' and
+        if (target_platform == 'darwin' and
                 not os.getenv('_PYTHON_HOST_PLATFORM', None)):
             # Use the system BLAS from Accelerate or vecLib under OSX
             args = []
@@ -2249,7 +2250,7 @@ class x11_info(system_info):
                              default_include_dirs=default_x11_include_dirs)
 
     def calc_info(self):
-        if sys.platform  in ['win32']:
+        if target_platform  in ['win32']:
             return
         lib_dirs = self.get_lib_dirs()
         include_dirs = self.get_include_dirs()
@@ -2461,7 +2462,7 @@ class agg2_info(system_info):
                 break
         if not src_dir:
             return
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             agg2_srcs = glob(os.path.join(src_dir, 'src', 'platform',
                                           'win32', 'agg_win32_bmp.cpp'))
         else:

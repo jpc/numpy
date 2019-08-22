@@ -18,12 +18,13 @@ from numpy.distutils.system_info import system_info
 compilers = ['GnuFCompiler', 'Gnu95FCompiler']
 
 TARGET_R = re.compile(r"Target: ([a-zA-Z0-9_\-]*)")
+target_platform = "linux"
 
 # XXX: handle cross compilation
 
 
 def is_win64():
-    return sys.platform == "win32" and platform.architecture()[0] == "64bit"
+    return target_platform == "win32" and platform.architecture()[0] == "64bit"
 
 
 if is_win64():
@@ -104,11 +105,11 @@ class GnuFCompiler(FCompiler):
 
     # Cygwin: f771: warning: -fPIC ignored for target (all code is
     # position independent)
-    if os.name != 'nt' and sys.platform != 'cygwin':
+    if os.name != 'nt' and target_platform != 'cygwin':
         pic_flags = ['-fPIC']
 
     # use -mno-cygwin for g77 when Python is not Cygwin-Python
-    if sys.platform == 'win32':
+    if target_platform == 'win32':
         for key in ['version_cmd', 'compiler_f77', 'linker_so', 'linker_exe']:
             executables[key].append('-mno-cygwin')
 
@@ -117,7 +118,7 @@ class GnuFCompiler(FCompiler):
 
     def get_flags_linker_so(self):
         opt = self.linker_so[1:]
-        if sys.platform == 'darwin':
+        if target_platform == 'darwin':
             target = os.environ.get('MACOSX_DEPLOYMENT_TARGET', None)
             # If MACOSX_DEPLOYMENT_TARGET is set, we simply trust the value
             # and leave it alone.  But, distutils will complain if the
@@ -149,7 +150,7 @@ class GnuFCompiler(FCompiler):
             opt.extend(['-undefined', 'dynamic_lookup', '-bundle'])
         else:
             opt.append("-shared")
-        if sys.platform.startswith('sunos'):
+        if target_platform.startswith('sunos'):
             # SunOS often has dynamically loaded symbols defined in the
             # static library libg2c.a  The linker doesn't like this.  To
             # ignore the problem, use the -mimpure-text flag.  It isn't
@@ -171,9 +172,9 @@ class GnuFCompiler(FCompiler):
         return None
 
     def get_libgfortran_dir(self):
-        if sys.platform[:5] == 'linux':
+        if target_platform[:5] == 'linux':
             libgfortran_name = 'libgfortran.so'
-        elif sys.platform == 'darwin':
+        elif target_platform == 'darwin':
             libgfortran_name = 'libgfortran.dylib'
         else:
             libgfortran_name = None
@@ -193,11 +194,11 @@ class GnuFCompiler(FCompiler):
 
     def get_library_dirs(self):
         opt = []
-        if sys.platform[:5] != 'linux':
+        if target_platform[:5] != 'linux':
             d = self.get_libgcc_dir()
             if d:
                 # if windows and not cygwin, libg2c lies in a different folder
-                if sys.platform == 'win32' and not d.startswith('/usr/lib'):
+                if target_platform == 'win32' and not d.startswith('/usr/lib'):
                     d = os.path.normpath(d)
                     path = os.path.join(d, "lib%s.a" % self.g2c)
                     if not os.path.exists(path):
@@ -227,10 +228,10 @@ class GnuFCompiler(FCompiler):
         if g2c is not None:
             opt.append(g2c)
         c_compiler = self.c_compiler
-        if sys.platform == 'win32' and c_compiler and \
+        if target_platform == 'win32' and c_compiler and \
                 c_compiler.compiler_type == 'msvc':
             opt.append('gcc')
-        if sys.platform == 'darwin':
+        if target_platform == 'darwin':
             opt.append('cc_dynamic')
         return opt
 
@@ -265,14 +266,14 @@ class GnuFCompiler(FCompiler):
         return []
 
     def runtime_library_dir_option(self, dir):
-        if sys.platform[:3] == 'aix' or sys.platform == 'win32':
+        if target_platform[:3] == 'aix' or target_platform == 'win32':
             # Linux/Solaris/Unix support RPATH, Windows and AIX do not
             raise NotImplementedError
 
         # TODO: could use -Xlinker here, if it's supported
         assert "," not in dir
 
-        sep = ',' if sys.platform == 'darwin' else '='
+        sep = ',' if target_platform == 'darwin' else '='
         return '-Wl,-rpath%s%s' % (sep, dir)
 
 
@@ -292,7 +293,7 @@ class Gnu95FCompiler(GnuFCompiler):
         else:
             # use -mno-cygwin flag for gfortran when Python is not
             # Cygwin-Python
-            if sys.platform == 'win32':
+            if target_platform == 'win32':
                 for key in [
                         'version_cmd', 'compiler_f77', 'compiler_f90',
                         'compiler_fix', 'linker_so', 'linker_exe'
@@ -318,7 +319,7 @@ class Gnu95FCompiler(GnuFCompiler):
     module_dir_switch = '-J'
     module_include_switch = '-I'
 
-    if sys.platform[:3] == 'aix':
+    if target_platform[:3] == 'aix':
         executables['linker_so'].append('-lpthread')
         if platform.architecture()[0][:2] == '64':
             for key in ['compiler_f77', 'compiler_f90','compiler_fix','linker_so', 'linker_exe']:
@@ -328,7 +329,7 @@ class Gnu95FCompiler(GnuFCompiler):
 
     def _universal_flags(self, cmd):
         """Return a list of -arch flags for every supported architecture."""
-        if not sys.platform == 'darwin':
+        if not target_platform == 'darwin':
             return []
         arch_flags = []
         # get arches the C compiler gets.
@@ -358,7 +359,7 @@ class Gnu95FCompiler(GnuFCompiler):
 
     def get_library_dirs(self):
         opt = GnuFCompiler.get_library_dirs(self)
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             c_compiler = self.c_compiler
             if c_compiler and c_compiler.compiler_type == "msvc":
                 target = self.get_target()
@@ -377,9 +378,9 @@ class Gnu95FCompiler(GnuFCompiler):
 
     def get_libraries(self):
         opt = GnuFCompiler.get_libraries(self)
-        if sys.platform == 'darwin':
+        if target_platform == 'darwin':
             opt.remove('cc_dynamic')
-        if sys.platform == 'win32':
+        if target_platform == 'win32':
             c_compiler = self.c_compiler
             if c_compiler and c_compiler.compiler_type == "msvc":
                 if "gcc" in opt:

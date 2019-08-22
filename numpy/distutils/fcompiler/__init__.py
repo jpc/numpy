@@ -14,6 +14,7 @@ But note that FCompiler.executables is actually a dictionary of commands.
 
 """
 from __future__ import division, absolute_import, print_function
+target_platform = "linux"
 
 __all__ = ['FCompiler', 'new_fcompiler', 'show_fcompilers',
            'dummy_fortran_file']
@@ -528,7 +529,7 @@ class FCompiler(CCompiler):
         linker_so = self.linker_so
         if linker_so:
             linker_so_flags = self.flag_vars.linker_so
-            if sys.platform.startswith('aix'):
+            if target_platform.startswith('aix'):
                 python_lib = get_python_lib(standard_lib=1)
                 ld_so_aix = os.path.join(python_lib, 'config', 'ld_so_aix')
                 python_exp = os.path.join(python_lib, 'config', 'python.exp')
@@ -745,7 +746,7 @@ class FCompiler(CCompiler):
     ## class FCompiler
 
 _default_compilers = (
-    # sys.platform mappings
+    # target_platform mappings
     ('win32', ('gnu', 'intelv', 'absoft', 'compaqv', 'intelev', 'gnu95', 'g95',
                'intelvem', 'intelem', 'flang')),
     ('cygwin.*', ('gnu', 'intelv', 'absoft', 'compaqv', 'intelev', 'gnu95', 'g95')),
@@ -833,7 +834,7 @@ def available_fcompilers_for_platform(osname=None, platform=None):
     if osname is None:
         osname = os.name
     if platform is None:
-        platform = sys.platform
+        platform = target_platform
     matching_compiler_types = []
     for pattern, compiler_type in _default_compilers:
         if re.match(pattern, platform) or re.match(pattern, osname):

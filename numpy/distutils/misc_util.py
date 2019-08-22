@@ -1,4 +1,5 @@
 from __future__ import division, absolute_import, print_function
+target_platform = "linux"
 
 import os
 import re
@@ -321,7 +322,7 @@ def make_temp_file(suffix='', prefix='', text=True):
 # Hooks for colored terminal output.
 # See also https://web.archive.org/web/20100314204946/http://www.livinglogic.de/Python/ansistyle
 def terminal_has_colors():
-    if sys.platform=='cygwin' and 'USE_COLOR' not in os.environ:
+    if target_platform=='cygwin' and 'USE_COLOR' not in os.environ:
         # Avoid importing curses that causes illegal operation
         # with a message:
         #  PYTHON2 caused an invalid page fault in
@@ -384,14 +385,14 @@ def blue_text(s):
 #########################
 
 def cyg2win32(path):
-    if sys.platform=='cygwin' and path.startswith('/cygdrive'):
+    if target_platform=='cygwin' and path.startswith('/cygdrive'):
         path = path[10] + ':' + os.path.normcase(path[11:])
     return path
 
 def mingw32():
     """Return true when using mingw32 environment.
     """
-    if sys.platform=='win32':
+    if target_platform=='win32':
         if os.environ.get('OSTYPE', '')=='msys':
             return True
         if os.environ.get('MSYSTEM', '')=='MINGW32':
@@ -676,12 +677,12 @@ def get_shared_lib_extension(is_python_ext=False):
         # hardcode known values, config vars (including SHLIB_SUFFIX) are
         # unreliable (see #3182)
         # darwin, windows and debug linux are wrong in 3.3.1 and older
-        if (sys.platform.startswith('linux') or
-            sys.platform.startswith('gnukfreebsd')):
+        if (target_platform.startswith('linux') or
+            target_platform.startswith('gnukfreebsd')):
             so_ext = '.so'
-        elif sys.platform.startswith('darwin'):
+        elif target_platform.startswith('darwin'):
             so_ext = '.dylib'
-        elif sys.platform.startswith('win'):
+        elif target_platform.startswith('win'):
             so_ext = '.dll'
         else:
             # fall back to config vars for unknown platforms
@@ -1842,7 +1843,7 @@ class Configuration(object):
             if m:
                 return int(m.group('revision'))
 
-        if sys.platform=='win32' and os.environ.get('SVN_ASP_DOT_NET_HACK', None):
+        if target_platform=='win32' and os.environ.get('SVN_ASP_DOT_NET_HACK', None):
             entries = njoin(path, '_svn', 'entries')
         else:
             entries = njoin(path, '.svn', 'entries')

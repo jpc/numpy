@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+target_platform = "linux"
 
 import os
 import sys
@@ -33,7 +34,7 @@ def configuration(parent_package='', top_path=None):
             print("### Warning:  Using unoptimized lapack ###")
             return all_sources
         else:
-            if sys.platform == 'win32':
+            if target_platform == 'win32':
                 print("### Warning:  python_xerbla.c is disabled ###")
                 return []
             return [all_sources[0]]

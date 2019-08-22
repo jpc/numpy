@@ -3,6 +3,7 @@
 # compilers (they must define linker_exe first).
 # Pearu Peterson
 from __future__ import division, absolute_import, print_function
+target_platform = "linux"
 
 import os, signal
 import warnings
@@ -42,7 +43,7 @@ class config(old_config):
         old_config._check_compiler(self)
         from numpy.distutils.fcompiler import FCompiler, new_fcompiler
 
-        if sys.platform == 'win32' and (self.compiler.compiler_type in
+        if target_platform == 'win32' and (self.compiler.compiler_type in
                                         ('msvc', 'intelw', 'intelemw')):
             # XXX: hack to circumvent a python 2.6 bug with msvc9compiler:
             # initialize call query_vcvarsall, which throws an IOError, and

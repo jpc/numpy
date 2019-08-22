@@ -1,4 +1,5 @@
 from __future__ import division, absolute_import, print_function
+target_platform = "linux"
 
 import os
 import re
@@ -683,7 +684,7 @@ def CCompiler_cxx_compiler(self):
 
     cxx = copy(self)
     cxx.compiler_so = [cxx.compiler_cxx[0]] + cxx.compiler_so[1:]
-    if sys.platform.startswith('aix') and 'ld_so_aix' in cxx.linker_so[0]:
+    if target_platform.startswith('aix') and 'ld_so_aix' in cxx.linker_so[0]:
         # AIX needs the ld_so_aix script included with Python
         cxx.linker_so = [cxx.linker_so[0], cxx.compiler_cxx[0]] \
                         + cxx.linker_so[2:]
@@ -712,7 +713,7 @@ ccompiler._default_compilers += (('linux.*', 'intel'),
                                  ('nt', 'intelw'),
                                  ('nt', 'intelemw'))
 
-if sys.platform == 'win32':
+if target_platform == 'win32':
     compiler_class['mingw32'] = ('mingw32ccompiler', 'Mingw32CCompiler',
                                  "Mingw32 port of GNU C Compiler for Win32"\
                                  "(for MSC built Python)")

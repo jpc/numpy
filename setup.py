@@ -18,6 +18,7 @@ All NumPy wheels distributed on PyPI are BSD licensed.
 
 """
 from __future__ import division, print_function
+target_platform = "linux"
 
 DOCLINES = (__doc__ or '').split("\n")
 
@@ -373,7 +374,7 @@ def setup_package():
     write_version_py()
 
     # The f2py scripts that will be installed
-    if sys.platform == 'win32':
+    if target_platform == 'win32':
         f2py_cmds = [
             'f2py = numpy.f2py.f2py2e:main',
             ]
